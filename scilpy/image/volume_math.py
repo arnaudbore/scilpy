@@ -88,8 +88,13 @@ def get_operations_doc(ops: dict):
     return "".join(full_doc)
 
 
-def _validate_same_shape(*imgs):
+def _validate_same_shape(*imgs, value=None):
     """Make sure that all shapes match."""
+    print(imgs)
+    if value:
+        if not isinstance(imgs[:-1], nib.Nifti1Image):
+            imgs = imgs[-1]
+
     ref_img = imgs[-1]
     for img in imgs:
         if not np.all(ref_img.header.get_data_shape() ==
@@ -97,9 +102,13 @@ def _validate_same_shape(*imgs):
             raise ValueError('Not all inputs have the same shape!')
 
 
-def _validate_imgs_type(*imgs):
+def _validate_imgs_type(*imgs, value=None):
     """Make sure that all inputs are images."""
-    for img in imgs:
+    if value:
+        if not isinstance(imgs[:-1], nib.Nifti1Image):
+            imgs = imgs[:-1]
+
+    for img in imgs[:-1]:
         if not isinstance(img, nib.Nifti1Image):
             raise ValueError('Inputs are not all images. Received a {} when '
                              'we were expecting an image.'.format(type(img)))
@@ -437,8 +446,8 @@ def addition(input_list, ref_img):
         Add multiple images together.
     """
     _validate_length(input_list, 2, at_least=True)
-    _validate_imgs_type(*input_list)
-    _validate_same_shape(*input_list, ref_img)
+    _validate_imgs_type(*input_list, value=True)
+    _validate_same_shape(*input_list, ref_img, value=True)
 
     output_data = np.zeros(ref_img.header.get_data_shape(), dtype=np.float64)
     for img in input_list:
@@ -481,8 +490,8 @@ def multiplication(input_list, ref_img):
         Multiply multiple images together (danger of underflow and overflow)
     """
     _validate_length(input_list, 2, at_least=True)
-    _validate_imgs_type(*input_list)
-    _validate_same_shape(*input_list, ref_img)
+    _validate_imgs_type(*input_list, value=True)
+    _validate_same_shape(*input_list, ref_img, value=True)
 
     output_data = np.ones(ref_img.header.get_data_shape())
     if isinstance(input_list[0], nib.Nifti1Image):

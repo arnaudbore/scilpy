@@ -31,8 +31,11 @@ def _build_arg_parser():
 
     p.add_argument('in_tractogram',
                    help='Input tractogram (.trk or .tck).')
-    p.add_argument('in_dps_file',
+    g = p.add_mutually_exclusive_group(required=True)
+    g.add_argument('--in_dps_file',
                    help='File containing the data to add to streamlines.')
+    g.add_argument('--in_dps_value', type=float,
+                   help='Value to add to each streamline.')
     p.add_argument('dps_key',
                    help='Where to store the data in the tractogram.')
     p.add_argument('out_tractogram',
@@ -51,8 +54,8 @@ def main():
     logging.getLogger().setLevel(logging.getLevelName(args.verbose))
 
     # I/O assertions
-    assert_inputs_exist(parser, [args.in_tractogram, args.in_dps_file],
-                        args.reference)
+    assert_inputs_exist(parser, args.in_tractogram,
+                        [args.reference, args.in_dps_file])
     assert_outputs_exist(parser, args, args.out_tractogram)
     check_tract_trk(parser, args.out_tractogram)
 
@@ -66,12 +69,16 @@ def main():
                      'overwriting.'.format(args.dps_key))
 
     # Load data and remove extraneous dimensions
-    data = np.squeeze(load_matrix_in_any_format(args.in_dps_file))
+    if args.in_dps_file:
+        data = np.squeeze(load_matrix_in_any_format(args.in_dps_file))
+    
+        # Quick check as the built-in error from sft is not too explicit
+        if len(sft) != data.shape[0]:
+            raise ValueError('Data must have as many entries ({}) as there are'
+                             ' streamlines ({}).'.format(data.shape[0], len(sft)))
+    else:
+        data = np.repeat(args.in_dps_value, len(sft), axis=0)
 
-    # Quick check as the built-in error from sft is not too explicit
-    if len(sft) != data.shape[0]:
-        raise ValueError('Data must have as many entries ({}) as there are'
-                         ' streamlines ({}).'.format(data.shape[0], len(sft)))
     # Add data to tractogram
     sft.data_per_streamline[args.dps_key] = data
 
