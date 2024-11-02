@@ -17,7 +17,8 @@ cvx, have_cvxpy, _ = optional_package("cvxpy")
 
 def get_ventricles_max_fodf(data, fa, md, zoom, sh_basis,
                             fa_threshold, md_threshold,
-                            small_dims=False, is_legacy=True):
+                            small_dims=False, min_nvox=300,
+                            is_legacy=True):
     """
     Compute mean maximal fodf value in ventricules. Given heuristics thresholds
     on FA and MD values, finds the voxels of the ventricules or CSF and
@@ -45,6 +46,9 @@ def get_ventricles_max_fodf(data, fa, md, zoom, sh_basis,
         If set, takes the full range of data to search the max fodf amplitude
         in ventricles, rather than a window center in the data. Useful when the
         data has small dimensions.
+    min_nvox : int, optional
+        Minimal number of voxels needing to be identified as iso
+        voxels in the automatic estimation. Defaults to 300.
     fa_threshold: float
         Maximal threshold of FA (voxels under that threshold are considered
         for evaluation). Suggested value: 0.1.
@@ -120,6 +124,10 @@ def get_ventricles_max_fodf(data, fa, md, zoom, sh_basis,
         logging.warning('No voxels found for evaluation! Change your fa '
                         'and/or md thresholds')
         return 0, mask
+    elif min_nvox > count:
+        logging.warning('Number of voxels found ({}) is less than the '
+                        'minimal number of voxels needed for evaluation '
+                        '({}).'.format(count, min_nvox))
 
     logging.info('Average max fodf value: {}'.format(sum_of_max / count))
     return sum_of_max / count, mask

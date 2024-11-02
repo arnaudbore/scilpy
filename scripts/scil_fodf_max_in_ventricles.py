@@ -48,6 +48,10 @@ def _build_arg_parser():
                    help='Minimal threshold of MD in mm2/s (voxels above that '
                         'threshold are \nconsidered for '
                         'evaluation. [%(default)s]).')
+    p.add_argument('--min_nvox', default=300, type=int,
+                   help='Minimal number of voxels needing to be identified '
+                        'as single fiber voxels \nin the automatic '
+                        'estimation. [%(default)s]')
     p.add_argument('--max_value_output',  metavar='file',
                    help='Output path for the text file containing the value. '
                         'If not set the \nfile will not be saved.')
@@ -91,6 +95,7 @@ def main():
     value, mask = get_ventricles_max_fodf(fodf, fa, md, zoom, sh_basis,
                                           args.fa_threshold, args.md_threshold,
                                           small_dims=args.small_dims,
+                                          min_nvox=args.min_nvox,
                                           is_legacy=is_legacy)
 
     if args.mask_output:
