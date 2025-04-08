@@ -134,6 +134,8 @@ def main():
     if len(args.in_rois) == 1:
         json_stats = json_stats[roi_name]
 
+    print(json_stats)
+
     # Print results
     print(json.dumps(json_stats, indent=args.indent, sort_keys=args.sort_keys))
 

@@ -13,6 +13,9 @@ build-frontend = "build"
 # TODO: add back *311-* when we pass to h5py >=3.8
 build = "*39-* *310-*"
 
+# Export var to build scilpy
+environment = {SETUPTOOLS_USE_DISTUTILS="stdlib"}
+
 # By default, we skip :
 #  - All Pypa builds, since we have C extensions (not fully supported)
 #  - All windows builds (spams doesn't handle them)
@@ -35,7 +38,7 @@ before-test = "yum -y update && yum -y install openblas-devel lapack freetype &&
 [[tool.cibuildwheel.overrides]]
 select = "*-musllinux*"
 before-all = "apk add --no-cache blas-dev lapack-dev freetype-dev"
-before-test = "apk add --no-cache openblas-dev lapack freetype && pip install packaging"
+before-test = "apk add --no-cache openblas-dev lapack-dev freetype && pip install packaging"
 
 # To reinstate once vtk has official linux aarch64 wheels available (we won't build them for them)
 #[[tool.cibuildwheel.overrides]]
