@@ -67,7 +67,7 @@ from scilpy.io.utils import (add_processes_arg, add_sphere_arg,
                              load_matrix_in_any_format)
 from scilpy.image.volume_space_management import DataVolume
 from scilpy.tracking.propagator import ODFPropagator
-from scilpy.tracking.rap import RAPContinue
+from scilpy.tracking.rap import RAPContinue, RAPGraph
 from scilpy.tracking.seed import SeedGenerator, CustomSeedsDispenser
 from scilpy.tracking.tracker import Tracker
 from scilpy.tracking.utils import (add_mandatory_options_tracking,
@@ -159,6 +159,10 @@ def _build_arg_parser():
                         choices=['None', 'continue'],
                         help="Region-Adaptive Propagation tractography method "
                         " [%(default)s]")
+    track_g.add_argument('--rap_distance_max', type=float, default=5.0,
+                         help="Maximum distance in mm between the last point "
+                              "and the \nRAP mask to continue tracking. "
+                              "[%(default)s]")
 
     m_g = p.add_argument_group('Memory options')
     add_processes_arg(m_g)
@@ -292,6 +296,9 @@ def main():
     if args.rap_method == "continue":
         rap = RAPContinue(rap_mask, propagator, max_nbr_pts,
                           step_size=vox_step_size)
+    elif args.rap_method == "graph":
+        rap = RAPGraph(rap_mask, propagator, max_nbr_pts,
+                       args.rap_distance_max)
     else:
         rap = None
 
