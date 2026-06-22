@@ -18,7 +18,7 @@ import nibabel as nib
 from nibabel.streamlines.array_sequence import ArraySequence
 import numpy as np
 
-from scilpy.io.streamlines import streamlines_to_memmap
+from scilpy.io.streamlines import load_tractogram_with_reference, streamlines_to_memmap
 from scilpy.segment.bundleseg import BundleSeg
 from scilpy.utils import get_duration
 
@@ -248,7 +248,7 @@ class VotingScheme(object):
         with open(out_logfile, "w") as outfile:
             json.dump(results_dict, outfile)
 
-    def __call__(self, input_tractograms_path, nbr_processes=1, seed=None,
+    def __call__(self, input_tractograms_path, parser, args, nbr_processes=1, seed=None,
                  reference=None):
         """
         Entry point function that generate the 'stack' of commands for
@@ -269,8 +269,8 @@ class VotingScheme(object):
 
         wb_streamlines = ArraySequence()
         for in_tractogram in input_tractograms_path:
-            wb_streamlines.extend(
-                nib.streamlines.load(in_tractogram).streamlines)
+            sft = load_tractogram_with_reference(parser, args, in_tractogram)
+            wb_streamlines.extend(sft.streamlines)
         len_wb_streamlines = len(wb_streamlines)
 
         logger.debug(f"Tractogram {input_tractograms_path} with "

@@ -197,7 +197,7 @@ def main():
                           save_empty=args.save_empty,
                           ignore_metadata=args.ignore_metadata)
 
-    voting(args.in_tractograms, nbr_processes=args.nbr_processes,
+    voting(args.in_tractograms, parser, args, nbr_processes=args.nbr_processes,
            seed=args.seed, reference=args.reference)
 
 
