@@ -48,7 +48,7 @@ import shutil
 
 try:
     import nltk
-    nltk.download('punkt', quiet=True)
+    nltk.download('punkt_tab', quiet=True)
     nltk.download('wordnet', quiet=True)
 except ImportError:
     raise ImportError("You must install the 'nltk' package to use this script."
